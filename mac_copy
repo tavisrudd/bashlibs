@@ -1,0 +1,7 @@
+#!/bin/bash
+[[ -f ~/.mac-host.sh ]] && source ~/.mac-host.sh
+ControlPath=~/.ssh_mac_socket_tavis@$MAC
+if [[ ! -e $ControlPath ]]; then
+    ssh -tq -M -S $ControlPath -fN tavis@$MAC
+fi
+ssh -q -S $ControlPath tavis@$MAC "pbcopy"

@@ -1,0 +1,15 @@
+#!/bin/bash
+[[ -f ~/.mac-host.sh ]] && source ~/.mac-host.sh
+ControlPath=~/.ssh_mac_socket_tavis@$MAC
+if [[ ! -e $ControlPath ]]; then
+    ssh -tq -M -S $ControlPath -fN tavis@$MAC
+fi
+COMMAND="osascript -e'$1'"
+echo "$(date) $COMMAND" >> ~/.applescript.log
+
+
+if [[ "$2" == "echo" ]]; then
+    ssh -q -S $ControlPath tavis@$MAC "$COMMAND"
+else
+    ssh -q -S $ControlPath tavis@$MAC "$COMMAND" 2>&1 >> ~/.applescript.log
+fi
