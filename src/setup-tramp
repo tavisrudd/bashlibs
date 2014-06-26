@@ -1,0 +1,45 @@
+#!/bin/bash
+
+eterm_set_variables() {
+    local emacs_host="${EMACS_HOST-$(hostname)}"
+    local tramp_hostname="${TRAMP_HOSTNAME-$(hostname)}"
+    if [[ $TERM == "eterm-color" ]]; then
+        if [[ $tramp_hostname != "$emacs_host" ]]; then
+            echo -e "\033AnSiTu ${TRAMP_USERNAME-$(whoami)}" 
+            echo -e "\033AnSiTh $tramp_hostname"
+        fi
+        echo -e "\033AnSiTc  $(pwd)"
+    elif [[ $TERM == "screen" || $TERM  == "screen-256color" ]]; then
+        if [[ $tramp_hostname != "$emacs_host" ]]; then
+            echo -e "\033P\033AnSiTu\033\\ ${TRAMP_USERNAME-$(whoami)}" 
+            echo -e "\033P\033AnSiTh\033\\ $tramp_hostname" 
+        fi
+        echo -e "\033P\033AnSiTc\033\\  $(pwd)"
+    fi
+}
+
+eterm_tramp_init() {
+    for temp in cd pushd popd; do
+        alias $temp="eterm_set_cwd $temp"
+    done
+
+    # set hostname, user, and cwd now
+    eterm_set_variables
+}
+
+eterm_set_cwd() {
+    "$@"
+    eterm_set_variables
+}
+
+main() {
+    eterm_tramp_init
+    export -f eterm_tramp_init
+    export -f eterm_set_variables
+    export -f eterm_set_cwd
+    echo "tramp initialized"
+}
+
+## we don't do [[ "$BASH_SOURCE" == "$0" ]] && main "$@"
+## as this is a lib intended to be sourced into the calling shell
+main
